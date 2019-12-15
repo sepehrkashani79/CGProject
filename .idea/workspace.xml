@@ -2,9 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dd511313-c9e6-405b-9148-056d43b08923" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/myAirplane.html" beforeDir="false" afterPath="$PROJECT_DIR$/myAirplane.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skybox/nx.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/skybox/nx.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skybox/ny.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/skybox/ny.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skybox/nz.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/skybox/nz.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skybox/px.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/skybox/px.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skybox/py.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/skybox/py.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skybox/pz.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/skybox/pz.jpg" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -64,8 +69,18 @@
       <workItem from="1575099360636" duration="12370000" />
       <workItem from="1575184762508" duration="3313000" />
       <workItem from="1575357344910" duration="1029000" />
-      <workItem from="1575802680707" duration="537000" />
+      <workItem from="1575802680707" duration="4859000" />
+      <workItem from="1575964232843" duration="244000" />
+      <workItem from="1576345354399" duration="8130000" />
+      <workItem from="1576393802363" duration="2692000" />
     </task>
+    <task id="LOCAL‎۰۰۰۰۱" summary="fog added">
+      <created>1575804694967</created>
+      <option name="number" value="LOCAL‎۰۰۰۰۱" />
+      <option name="presentableId" value="LOCAL‎۰۰۰۰۱" />
+      <updated>1575804694968</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -76,10 +91,16 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="fog added" />
+    <option name="LAST_COMMIT_MESSAGE" value="fog added" />
   </component>
 </project>

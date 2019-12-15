@@ -22,6 +22,7 @@
         <script src="lib/"></script>
         <script src="lib/GLTF2Loader.js"></script>
         <script src="lib/FlyControls.js"></script>
+        <script src="lib/Tween.js"></script>
 <!--        <script src="lib/AxesHelper.js"></script>-->
 
         
@@ -32,24 +33,37 @@
 
             var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-            camera.position.z = 3;
+            camera.position.x = -9;
+            camera.position.y = 3.4;
+            camera.position.z = 0;
 
 
             var renderer = new THREE.WebGLRenderer();
-            // renderer.gammaOutput = true;
-            // renderer.gammaFactor = 2.2;
+
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
             //---------------------------------------------
             //-------- controls----------------
             var FlyControls=new THREE.FlyControls(camera,renderer.domElement);
-            FlyControls.dragToLook=true;
-            FlyControls.movementSpeed=0.1;
+            //FlyControls.dragToLook=true;
+            FlyControls.movementSpeed=0.5;
+            // FlyControls.
             //---------------------------------
             var engineStart=false;
             var propellar;
             var wingFlapL;
             var wingFlapR;
+
+            ///             MOVING VARIABLES
+            var isMoving=false;
+            var movingSpeed=0.2;
+            var rollSpeed=0;
+            var yawSpeed=0;
+            var PItchSpeed=0
+            ///---------------------------------
+
+
+
             ///    ----- LIGHTS--------
             ambient = new THREE.AmbientLight(0xffffff, 1);
             scene.add(ambient);
@@ -67,16 +81,20 @@
             //-------------------------
             //---------fog----
 
-            scene.fog = new THREE.Fog(0xffffff, 2, 20);
+            // scene.fog = new THREE.Fog(0xffffff, 2, 20);
 
             //------------------
 
             //------- plane--------------------
-            var plainGeometry = new THREE.PlaneGeometry(50, 50);
-            var plainMaterial = new THREE.MeshStandardMaterial({ color: 0x999999, side: THREE.DoubleSide });
+            var plainGeometry = new THREE.PlaneGeometry(1000, 1000);
+            var planeTexture = new THREE.TextureLoader().load( "textures/grass_4.jpg" );
+            planeTexture.wrapS = THREE.RepeatWrapping;
+            planeTexture.wrapT = THREE.RepeatWrapping;
+            planeTexture.repeat.set( 100, 100 );
+            var plainMaterial = new THREE.MeshStandardMaterial({ color: 0x999999, side: THREE.DoubleSide, map:planeTexture });
             var plane = new THREE.Mesh(plainGeometry, plainMaterial);
             plane.rotateX(Math.PI / 2);
-            plane.position.y = -5;
+            plane.position.y = -10;
             plane.castShadow=true;
             scene.add(plane);
             //---------------------------------
@@ -105,12 +123,13 @@
                     function (obj) {
                         // obj.scale.set(0.3,0.3,0.3);
                         obj.scene.castShadow=true;
-                        airplaneBuffer=obj;
+                        airplaneBuffer=obj.scene;
                         propellar=obj.scene.children[0].children[0].children[0].children[0].children[0].children[3].children[0];
                         wingFlapL=obj.scene.children[0].children[0].children[0].children[0].children[0].children[2].children[3];
-                        wingFlapr=obj.scene.children[0].children[0].children[0].children[0].children[0].children[2].children[4];
+                        wingFlapR=obj.scene.children[0].children[0].children[0].children[0].children[0].children[2].children[4];
                         console.log(obj.scene);
-                        scene.add(obj.scene);
+                        // airplaneBuffer.rotateY(Math.PI/2);
+                        scene.add(airplaneBuffer);
                     },
                     function (xhr) {
                         console.log("Loading airplane Model: " + (xhr.loaded / xhr.total * 100) + "%");
@@ -120,50 +139,86 @@
             }
 
             // -------------SETTING UP THE KEY LISTENERS---------------
-            document.body.onkeypress=function(key){
-                 if(key.code=="KeyO"){
-                     airplaneBuffer.scene.children[0].children[0].children[0].children[0].children[0].children[2].children[0].rotation.y= -Math.PI/2;
+            document.body.onkeypress=function(key){ /////  ON PRESS
+                 var keyCode=key.code;
+                // console.log(keyCode);
+                keyCode=keyCode.toLowerCase();
+                keyCode=keyCode.charAt(3);
+                // console.log(keyCode);
+
+                //       -----   FLAPS   -------
+                 if(keyCode=="q"){
+                     airplaneBuffer.children[0].children[0].children[0].children[0].children[0].children[2].children[0].rotation.y= -Math.PI/2;
                  }
-                if(key.code=="KeyP"){
-                    airplaneBuffer.scene.children[0].children[0].children[0].children[0].children[0].children[2].children[0].rotation.y= Math.PI/2;
+                if(keyCode=="e"){
+                    airplaneBuffer.children[0].children[0].children[0].children[0].children[0].children[2].children[0].rotation.y= Math.PI/2;
                 }
-                if (key.code=="KeyM"){
+                if (keyCode=="m"){
+                    console.log(camera.position);
                     if(engineStart==false)
                         engineStart=true;
                     else
                         engineStart=false;
                 }
-                switch(key.code){
-                    case "KeyH":{
+
+                switch(keyCode){
+                    case "a":{
                         wingFlapL.rotation.z=  Math.PI/3;
-                        wingFlapr.rotation.z= -Math.PI/3;
+                        wingFlapR.rotation.z= -Math.PI/3;
                     };break;
-                    case "KeyK":{
+                    case "d":{
                         wingFlapL.rotation.z= -Math.PI/3;
-                        wingFlapr.rotation.z=  Math.PI/3;
+                        wingFlapR.rotation.z=  Math.PI/3;
                     };break;
                 }
 
+                //       MOVE
+                if(keyCode=="z"){//start to move
+                    isMoving=(isMoving)?false:true;
+                    FlyControls.dispose(); // disabling flycontrols
 
-                 //console.log(key.code)
+                    console.log("moving!!!");
+                }
+                ////----------  PITCH  ROLL YAW  -----------
+                if(isMoving){
+                    if(keyCode=="d"){//     roll right (cw)
+                        rollSpeed=degToRad(2);
+                    }
+                    if(keyCode=="a"){// roll left (ccw)
+                        rollSpeed=degToRad(-2);
+                    }
+                }
+
+
+
+
             };
             document.body.onkeyup=function(key){
-                if(key.code=="KeyP" || key.code=="KeyO"){
-                    airplaneBuffer.scene.children[0].children[0].children[0].children[0].children[0].children[2].children[0].rotation.y=0;
+                var keyCode=key.code;
+                keyCode=keyCode.toLowerCase();
+                keyCode=keyCode.charAt(3);
+                if(keyCode=="q" || keyCode=="e"){
+                    airplaneBuffer.children[0].children[0].children[0].children[0].children[0].children[2].children[0].rotation.y=0;
                 }
-                switch(key.code){
-                    case "KeyH":{
+                switch(keyCode){
+                    case "a":{
                         wingFlapL.rotation.z= 0;
-                        wingFlapr.rotation.z= 0;
+                        wingFlapR.rotation.z= 0;
                     };break;
-                    case "KeyK":{
+                    case "d":{
                         wingFlapL.rotation.z= 0;
-                        wingFlapr.rotation.z= 0;
+                        wingFlapR.rotation.z= 0;
                     };break;
                 };
+                // ---   roll  pitch yaw ---
+                if(keyCode=="a" || keyCode=="d"){
+                    rollSpeed=0;
+                }
             };
             // --------------------------------------------------------
-
+            function degToRad(deg) {
+                return Math.PI/180*deg;
+            }
             //-------------- AXIS HELPERS----------
             // var axesHelper = new THREE.AxesHelper( 5 );
             // scene.add( axesHelper );
@@ -176,7 +231,20 @@
                 if(engineStart==true){
                     propellar.rotation.x-=1;
                 }
+                if(isMoving){
+                    airplaneBuffer.translateX(movingSpeed);
+                    camera.translateZ((-1)*movingSpeed);
+                    camera.position.x=airplaneBuffer.position.x-9;
+                    camera.position.y=airplaneBuffer.position.y+3;
+                    //----------   roll pitch yaw
+                    airplaneBuffer.rotateX(rollSpeed);
+                    camera.rotation.x+=rollSpeed;
+                    //---------
+                }
+                camera.lookAt(airplaneBuffer.position);//camera always looking at the airplane
+
                 renderer.render(scene, camera);
+                // console.log(camera.position);
             };
             
             animate();
